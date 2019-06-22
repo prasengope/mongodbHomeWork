@@ -1,109 +1,71 @@
-//REQUIRING THE DEPENDENCIES
-var express = require('express');
-var logger = require('morgan');
-var mongoose = require('mongoose');
-var axios = require('axios');
-var cheerio = require('cheerio');
-
-//REQUIRING THE MODELS
-var db = require('./models/Save');
-
-//SPECIFYING THE PORT
-var PORT = 53105;
-
-//INITIALIZING EXPRESS
+var express = require("express");
+var bodyParser = require("body-parser");
+var request = require("request");
+var mongoose = require("mongoose");
+var Note = require("./models/Note.js");
+var Article = require("./models/Article.js");
+var Save = require("./models/Save.js");
+var logger = require("morgan");
+var cheerio = require("cheerio");
+var path = require("path");
 var app = express();
+var PORT = process.env.PORT || 4000;
 
-//CONFIGURING MIDDLEWARE
-
-//USING MORGAN LOGGER FOR LOGGING REQUESTS
+// Parse application/x-www-form-urlencoded
 app.use(logger('dev'));
-//PARSE REQUEST BODY AS JSON
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-//MAKING PUBLIC A STATIC FOLDER
-app.use(express.static('public'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(express.static("./public"));
 
-//CONNECT TO THE MONGO DB
-mongoose.connect('mongodb://127.0.0.1/scrapedb', { useNewUrlParser: true });
+// connect to database
+mongoose.Promise = Promise;
+var dbConnect = process.env.MONGODB_URI || "mongodb://localhost/foxsScrape";
+if(process.env.MONGODB_URI) {
+    mongoose.connect(process.env.MONGODB_URI)
+} else {
+    mongoose.connect(dbConnect);
+}
+// mongodb://foxsScrape:password12@ds119585.mlab.com:19585/heroku_hd8909ql;
+// Connect mongoose to our database
+/* mongoose.connect(dbConnect, function (error) {
+    // Log any errors connecting with mongoose
+    if (error) {
+        console.log(error);
+    }
+    // Or log a success message
+    else {
+        console.log("Mongoose connection is successful");
+    }
+}); */
+var db = mongoose.connection;
+db.on('error',function(err){
+    console.log('Mongoose Error',err);
+});
+db.once('open', function(){
+    console.log("Mongoose connection is successful");
+});
+var exphbs = require("express-handlebars");
 
-//ROUTES
+app.engine("handlebars", exphbs({
+    defaultLayout: "main"
+}));
 
-//index
-app.get('/', function(req, res) {
-	res.redirect('/articles');
+app.set("view engine", "handlebars");
+
+app.get("/", function (req, res) {
+    res.sendFile(path.join(__dirname, "views/index.html"));
 });
 
-//A GET ROUTE FOR SCRAPING THE YAHOO NEWS
-app.get('/scrape', function(req, res) {
-	//USING AXIOS TO GRAB THE BODY OF YAHOO NEWS
-	axios.get('https://news.yahoo.com/us/').then(function(response) {
-		var $ = cheerio.load(response.data);
+require("./routes/scrape")(app);
+require("./routes/html.js")(app);
 
-		//GRAB EACH ELEMENT FROM THE WEBSITE
-		$('li.js-stream-content').each(function(i, element) {
-			//CREATE A EMPTY OBJECT NAMED RESULT
-			var result = {};
-
-			//ADD THE TITLES AND LINKS TO THE RESULT OBJECT
-			result.title = $(this).find('h3').text();
-			result.link = $(this).find('a').attr('href');
-
-			db.Article
-				.create(result)
-				.then(function(dbArticle) {
-					//VIEW THE ADDED ARTICLE
-					console.log(dbArticle);
-				})
-				.catch(function(err) {
-					console.log(err);
-				});
-		});
-
-		//SEND A MESSAGE TO THE CLIENT
-		res.send('Scrape Complete!');
-	});
+app.get("*", function (req, res) {
+    res.sendFile(path.join(__dirname, "views/index.html"));
 });
 
-//ROUTE FOR GRABBING A SPECIFIC ARTICLE BY ID, POPULATE IT WITH ITS NOTE
-app.get('./articles', function(req, res) {
-	db.Article.find({}, function(error, found) {
-		if (error) {
-			console.log(error);
-		} else {
-			res.json(found);
-		}
-	});
-});
 
-app.get('/articles/:id', function(res, req) {
-	db.Article
-		.findOne({ _id: req.params.id })
-		.populate('note')
-		.then(function(dbArticle) {
-			res.json(dbArticle);
-		})
-		.catch(function(err) {
-			res.json(err);
-		});
-});
-
-//ROUTE FOR SAVING/UPDATING AN ARTICLE'S NOTE
-app.post('/articles/:id', function(req, res) {
-	db.Note
-		.create(req.body)
-		.then(function(dbNote) {
-			db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote_id }, { new: true });
-		})
-		.then(function(dbArticle) {
-			res.json(dbArticle);
-		})
-		.catch(function(err) {
-			res.json(err);
-		});
-});
-
-//START THE SERVER
-app.listen(PORT, function() {
-	console.log('App running on port ' + PORT + '!');
+app.listen(PORT, function () {
+    console.log("App listening on PORT " + PORT);
 });
