@@ -1,28 +1,24 @@
-//REQUIRING THE DEPENDENCIES
-var mongoose = require('mongoose');
-
-//REFERENCING THE SCHEMA
+// Require mongoose
+var mongoose = require("mongoose");
+// Create a schema class
 var Schema = mongoose.Schema;
 
-//CREATING THE SCHEMA
+// Create the Note schema
 var NoteSchema = new Schema({
-    name: {
-        type: String,
-        required: true
-    },
-
-    title: {
-        type: String,
-        required: true
-    },
-
-    body: {
-        type: String,
-    }
+  // Just a string
+  article_id: {
+    type: Schema.Types.ObjectId
+  },
+  body: {
+    type: String
+  }
 });
 
-//CREATING THE MODEL FROM THE SCHEMA
-var Note = mongoose.model('Note', NoteSchema);
+// Remember, Mongoose will automatically save the ObjectIds of the notes
+// These ids are referred to in the Article model
 
-//EXPORT THE ARTICLE MODULE
+// Create the Note model with the NoteSchema
+var Note = mongoose.model("Note", NoteSchema);
+
+// Export the Note model
 module.exports = Note;
