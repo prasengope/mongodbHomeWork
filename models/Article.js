@@ -1,31 +1,35 @@
-//REQUIRING THE DEPENDENCIES
-var mongoose = require('mongoose');
-
-//REFERENCING THE SCHEMA
+// Require mongoose
+var mongoose = require("mongoose");
+// Create Schema class
 var Schema = mongoose.Schema;
 
-//CREATING THE SCHEMA
+// Create article schema
 var ArticleSchema = new Schema({
-    //BOTH TITLE AND LINK ARE DEFAULT COLUMNS
-    title: {
-        type: String,
-        required: true
-    },
-
-    link: {
-        type: String,
-        required: true
-    },
-
-    //REFERENCING TO THE NOTE MODEL
-    note: {
-        type: Schema.Types.ObjectId,
-        ref: 'Note'
-    }
+  // title is a required string
+  title: {
+    type: String,
+    required: true
+  },
+  // link is a required string
+  link: {
+    type: String,
+    required: true
+  },
+  summary: {
+    type: String,
+  },
+   byline: {
+   type: String,
+  },
+  // This only saves one note's ObjectId, ref refers to the Note model
+  note: [{
+    type: Schema.Types.ObjectId,
+    ref: "Note"
+  }]
 });
 
-//CREATING THE MODEL FROM THE SCHEMA
-var Article = mongoose.model('Article', ArticleSchema);
+// Create the Article model with the ArticleSchema
+var Article = mongoose.model("Article", ArticleSchema);
 
-//EXPORT THE ARTICLE MODULE
+// Export the model
 module.exports = Article;
