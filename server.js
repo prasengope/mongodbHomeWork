@@ -6,7 +6,7 @@ var axios = require('axios');
 var cheerio = require('cheerio');
 
 //REQUIRING THE MODELS
-var db = require('./models');
+var db = require('./models/Save');
 
 //SPECIFYING THE PORT
 var PORT = 53105;
