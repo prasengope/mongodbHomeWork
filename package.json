@@ -1,30 +1,23 @@
 {
-  "name": "mongodbhomework",
+  "name": "mongoose_skeleton",
   "version": "1.0.0",
-  "description": "The goal of this homework is to scrape a site with Cheerio, store the site's data with MongoDB, and perform CRUD operations on the data using the Mongoose ORM",
-  "main": "index.js",
+  "description": "",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/prasengope/mongodbHomeWork.git"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "watch": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/prasengope/mongodbHomeWork/issues"
-  },
-  "homepage": "https://github.com/prasengope/mongodbHomeWork#readme",
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.18.1",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.3",
     "express": "^4.17.1",
     "express-handlebars": "^3.1.0",
-    "mongoose": "^5.5.14",
+    "mongoose": "^5.6.0",
     "morgan": "^1.9.1",
-    "path": "^0.12.7",
     "request": "^2.88.0"
   }
 }
